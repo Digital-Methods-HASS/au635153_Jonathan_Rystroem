@@ -1,0 +1,52 @@
+---
+title: "CDS HomeWork 2"
+author: "Jonathan Rystrøm"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: pdf_document
+---
+
+### load packages
+```{r}
+library(tidyverse)
+```
+
+
+## 1) Use R to figure out how many elements in the vector below are greater than 2.
+
+```{r}
+# Define the vector
+rooms <- c(1, 2, 1, 3, 1, NA, 3, 1, 3, 2, 1, NA, 1, 8, 3, 1, 4, NA, 1, 3, 1, 2, 1, 7, 1, NA)
+
+# Remove NA's and take the sum of the statemtn
+sum(na.omit(rooms) > 2)
+```
+As seen on the output there are **8** values greater than 2 (excluding the NA's)
+
+
+## 2) What type of data is in the 'rooms' vector?
+This can be answered using the class-function
+```{r}
+class(rooms)
+```
+The answer is **numeric**
+
+
+## 3) What is the result of running median() function on the above 'rooms' vector?
+Let's try it out
+```{r}
+median(rooms)
+```
+We get an NA. This is because the NA's could conceivably be any value, so R cannot possibly say what the median is.
+
+
+## 4) Submit an image to Github
+Inside your R Project (.Rproj), install the 'tidyverse' package and use the download.file() and read_csv() function to read the SAFI_clean.csv dataset into your R project as 'interviews' digital object (see instructions in https://datacarpentry.org/r-socialsci/setup.html and 'Starting with Data' section). Take a screenshot of your RStudio interface showing a) the script you used to create the object, b) the 'interviews' object in the Environment and the c) structure of your R project in the bottom right Files pane. Save the screenshot as an image and put it in your AUID_lastname_firstname repository inside our Github organisation (github.com/Digital-Methods-HASS) or equivalent. Place here the URL leading to the screenshot in your repository.
+
+The repo can be found [here](https://github.com/Rysias/au635153_Jonathan_Rystroem/tree/main/HW4)
+
+```{r}
+pacman::p_load(tidyverse)
+interviews <- read_csv("../data/SAFI_clean.csv")
+```
+
+
