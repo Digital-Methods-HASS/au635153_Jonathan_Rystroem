@@ -3,6 +3,7 @@ title: "CDS HomeWork 2"
 author: "Jonathan Rystrøm"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: pdf_document
+urlcolor: blue
 ---
 
 ### load packages
