@@ -1,12 +1,14 @@
 ---
 title: "HW5 - Make Data Move"
-author: ""
-date: "05/10/2020"
-output: html_document
+author: "Jonathan Rystrøm"
+date:  "`r format(Sys.time(), '%d %B, %Y')`"
+output: pdf_document
+urlcolor: blue
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls())
 ```
 
 #  Explore the recent global developments with R
@@ -18,9 +20,7 @@ Today, you will load a filtered gapminder dataset -  with a subset of data on gl
 First, start with installing the relevant packages 'tidyverse', 'gganimate', and 'gapminder'.
 
 ```{r libraries, echo = FALSE}
-library(tidyverse)
-library(gganimate)
-library(gapminder)
+pacman::p_load(tidyverse, gganimate, gapminder, png, gifski)
 ```
 
 ## Look at the data
@@ -33,8 +33,6 @@ The dataset contains information on each country in the sampled year, its contin
 
 Let's plot all the countries in 1952.
 ```{r 1957}
-theme_set(theme_bw())  # set theme to white background for better visibility
-
 ggplot(subset(gapminder, year == 1952), aes(gdpPercap, lifeExp, size = pop)) +
   geom_point() +
   scale_x_log10() 
@@ -42,7 +40,16 @@ ggplot(subset(gapminder, year == 1952), aes(gdpPercap, lifeExp, size = pop)) +
 We see an interesting spread with an outlier to the right. Answer the following questions, please:
 
 Q1. Why does it make sense to have a log10 scale on x axis?
+A1. Because there's orders of magnitude difference between the different countries
+
 Q2. What country is the richest in 1952 (far right on x axis)? 
+```{r}
+gapminder %>% 
+  filter(year == 1952) %>% 
+  filter(gdpPercap == max(gdpPercap)) %>% 
+  select(country, gdpPercap)
+```
+ Here we see that the most wealthy country per capita in 1952 was **Kuwait**
 
 You can generate a similar plot for 2007 and compare the differences
 ```{r 2007}
@@ -53,10 +60,24 @@ ggplot(subset(gapminder, year == 2007), aes(gdpPercap, lifeExp, size = pop)) +
 The black bubbles are a bit hard to read, the comparison would be easier with a bit more visual differentiation.
 
 Q3. Can you differentiate the continents by color and fix the axis labels?
+
+```{r 2007 with colours}
+ggplot(subset(gapminder, year == 2007), aes(gdpPercap, lifeExp, size = pop, colour = continent)) +
+  geom_point() +
+  scale_x_log10() + 
+  theme_minimal()
+```
+
 Q4. What are the five richest countries in the world in 2007?
+```{r}
+gapminder %>% 
+  filter(year == 2007) %>% 
+  arrange(desc(gdpPercap)) %>%
+  top_n(5) %>% 
+  select(country, gdpPercap)
+```
 
-
-
+The five richest countries are *Norway*, *Kuwait*, *Singapore*, *United States* and *Ireland*
 
 ##  Make it move!
 
@@ -75,10 +96,10 @@ anim
 This plot collates all the points across time. The next step is to split it into years and animate it. This may take some time, depending on the processing power of your computer (and other things you are asking it to do). Beware that the animation might appear in the 'Viewer' pane, not in this rmd preview. You need to knit the document to get the viz inside an html file.
 
 ```{r anim1}
-anim + transition_states(year, 
+anim_plot <- anim + transition_states(year, 
                       transition_length = 1,
                       state_length = 1)
-
+anim_plot
 ```
 Notice how the animation moves jerkily, 'jumping' from one year to the next 12 times in total. This is a bit clunky, which is why it's good we have another option. 
 
@@ -99,6 +120,13 @@ The much smoother movement in Option 2 will be much more noticeable if you add a
 
 Q5 Can you add a title to one or both of the animations above that will change 
  in sync with the animation? [hint: search labeling for transition_states() and transition_time() functions respectively]
+
+Let's try with transition_time() (anim_2)
+```{r}
+anim2 + 
+  ggtitle("Devlopment over time in gdp and life expectancy",
+          subtitle = "Year {frame_time}")
+```
 
 
 Q6 Can you made the axes' labels and units more readable? Consider expanding the abreviated lables as well as the scientific notation in the legend and x axis to whole numbers.[hint:search disabling scientific notation]
