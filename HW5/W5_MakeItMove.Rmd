@@ -2,7 +2,7 @@
 title: "HW5 - Make Data Move"
 author: "Jonathan Rystrøm"
 date:  "`r format(Sys.time(), '%d %B, %Y')`"
-output: pdf_document
+output: html_document
 urlcolor: blue
 ---
 
@@ -20,7 +20,7 @@ Today, you will load a filtered gapminder dataset -  with a subset of data on gl
 First, start with installing the relevant packages 'tidyverse', 'gganimate', and 'gapminder'.
 
 ```{r libraries, echo = FALSE}
-pacman::p_load(tidyverse, gganimate, gapminder, png, gifski)
+pacman::p_load(tidyverse, gganimate, gapminder, png, gifski, gghighlight)
 ```
 
 ## Look at the data
@@ -123,7 +123,7 @@ Q5 Can you add a title to one or both of the animations above that will change
 
 Let's try with transition_time() (anim_2)
 ```{r}
-anim2 + 
+anim3 <- anim2 + 
   ggtitle("Devlopment over time in gdp and life expectancy",
           subtitle = "Year {frame_time}")
 ```
@@ -131,7 +131,32 @@ anim2 +
 
 Q6 Can you made the axes' labels and units more readable? Consider expanding the abreviated lables as well as the scientific notation in the legend and x axis to whole numbers.[hint:search disabling scientific notation]
 
+```{r}
+require(scales)
+anim3 + 
+  labs(x = "GDP per Capita", y = "Life Expectancy") + 
+  scale_x_continuous(labels = comma)
+```
+I have followed the answer proposed [here](https://stackoverflow.com/a/14564102)
 
 Q7 Come up with a question you want to answer using the gapminder data and write it down. Then, create a data visualisation that answers the question and explain how your visualization answers the question. (Example: you wish to see what was mean life expectancy across the continents in the year you were born versus your parents' birth years). [hint: if you wish to have more data than is in the filtered gapminder, you can load either the `gapminder_unfiltered` dataset and download more at https://www.gapminder.org/data/ ]
 
+I want to figure out which Nordic country has had the biggest improvement in health since the 1950'ies 
+```{r}
+gapminder %>% 
+  filter(country %in% c("Denmark", "Norway", "Sweden", "Finland", "Iceland")) %>% 
+  select(country, year, lifeExp) %>%  
+  mutate(country = as_factor(country)) %>% 
+  ggplot(aes(x = year, y = lifeExp, colour = country)) + 
+  geom_point() + 
+  geom_smooth(se=F) + 
+  theme_minimal() + 
+  labs(
+    title = "Finland overtakes Denmark in Health",
+    subtitle = "Finland versus the rest of the Nordics",
+    x = "Year", 
+    y = "Life Expectancy"
+    ) + 
+  gghighlight(country %in% c("Finland", "Denmark"), use_direct_label = FALSE)
+```
 
