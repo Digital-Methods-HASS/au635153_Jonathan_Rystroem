@@ -114,6 +114,20 @@ ggplot(data = Western_Europe) +
 ```
 We notice that it is exactly similar 
 4) Move the legend from the current position on the side to below the facets, and label it "Country" instead of "Entity".
+```{r}
+ggplot(data = Western_Europe) + 
+  geom_line(mapping = aes(x = Year, 
+                           y = homicides, 
+                           color = Entity), 
+            size=2) +
+  facet_wrap(~ Entity,ncol = 2, nrow = 3) +
+  labs(x = "Year",
+       y = "Homicides per 100,000",
+       title = "Homicide rate in Western Europe from 1300-2000", 
+       legend = "Country",
+       color="Country") +
+  theme(legend.position="bottom")
+```
 
 5) Add a floating table of contents to your Rmarkdown document, provide informative chunk-names to all your R chunks, and automatically generate a timestamp to show when the document was last updated. 
 
