@@ -35,13 +35,53 @@ dat %>%
 
 ## Question 2
 *Write a script that loops over each country in the gapminder dataset, tests whether the country starts with a ‘B’ , and print out whether the life expectancy is smaller than 50, between 50 and 70, or greater than 70. (Hint: use the Control Flow tutorial as a guide here)*
-In general, looping in R is slow and generally not recommended as R is a vectorized language. I will therefore do a vectorized solution for the year 2017. 
+In general, looping in R is slow and generally not recommended as R is a vectorized language. However, here is how to do it. I look at life expectancy in 2017
 ```{r}
-dat2017 <- dat %>% 
-  filter(year == 2017)
+countries <- unique(dat$country)
+dat2017 <- filter(dat, year == max(year))
+
+for (land in countries) {
+  life_expectancy <- dat2017 %>% 
+    filter(country == land) %>% 
+    pull(lifeExp)
+  
+  if (life_expectancy < 50) {
+    print(paste0(land, "'s life expectancy is less than 50!"))
+  }
+  
+  else if (between(life_expectancy, 50, 70)) {
+    print(paste0(land, "'s life expectancy is between 50 and 70"))
+  }
+  
+  else if (life_expectancy > 70) {
+    print(paste0(land, "'s life expectancy is more than 70!"))
+  }
+}
 
 ```
 
 
 ## Question 3
 *Challenge/Optional: Write a script that loops over each country in the gapminder dataset, tests whether the country starts with a ‘M’ and graphs life expectancy against time (using plot() function) as a line graph if the mean life expectancy is under 50 years.*
+```{r}
+for (land in countries) {
+  # Find only rows with that country
+  country_dat <- dat %>% 
+    filter(country == land)
+  
+  # Get the latest life expectancy
+  life_expectancy <- country_dat %>% 
+    filter(year == max(year)) %>% 
+    pull(lifeExp)
+  
+  if (str_detect(land, "^M") & (life_expectancy < 50)) {
+    country_plot <- country_dat %>% 
+      ggplot(aes(x=year, y=lifeExp)) + 
+      geom_line() + 
+      labs(title = paste0("Life Expectancy for ", land)) + 
+      theme_minimal()
+    plot(country_plot)
+  }
+}
+```
+
