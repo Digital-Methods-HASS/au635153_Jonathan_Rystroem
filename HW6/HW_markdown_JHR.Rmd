@@ -74,6 +74,7 @@ for (land in countries) {
     filter(year == max(year)) %>% 
     pull(lifeExp)
   
+  # Checks starts with M and low life expectancy
   if (str_detect(land, "^M") & (life_expectancy < 50)) {
     country_plot <- country_dat %>% 
       ggplot(aes(x=year, y=lifeExp)) + 
