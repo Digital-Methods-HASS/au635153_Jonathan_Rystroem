@@ -1,0 +1,80 @@
+---
+title: "Club 27 Analysis (Task 2)"
+author: "Jonathan Rystrøm"
+date: "26/10/2021"
+output: html_document
+url_color: blue
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls())
+```
+
+# Introduction
+"Club 27" is an infamous club of famous musicians dying at the age of 27. From the [Wikipedia site](https://en.wikipedia.org/wiki/27_Club#History) it is clear that the pop culture phenomenon started after the tragic death of Kurt Cobain in in 1994. It would therefore be interesting to investigate **whether club 27 membership has increased or decreased after 1994**. This might be because of a copycat effect. To accomplish this I'll scrape the wikipedia data :)) 
+
+### Loading packages
+```{r}
+pacman::p_load(tidyverse, lubridate, rvest)
+```
+
+## Scraping data
+first we need to scrape the data from the wikipedia site using the `rvest`-package
+```{r}
+url <- "https://en.wikipedia.org/wiki/27_Club#Identified_members"
+dat <- read_html(url) %>% 
+	html_element(".wikitable") %>% 
+	html_table()
+```
+
+## Cleaning data
+We want to do two things to the data. Firstly, we want to format the dates as dates and secondly we want to classify whether the death was self-caused (suicide or drug-overdose) or not. 
+
+Let's go
+```{r}
+clean_dat <- dat %>%
+	rename(date_of_death = "Date of death",
+				 death_cause = "Official cause of death") %>%
+	mutate(
+		year_of_death = year(mdy(date_of_death)),
+		self_caused = str_detect(
+			death_cause, 
+			regex("suicide|overdose", 
+						ignore_case = T))
+		) %>%
+	select(Name, year_of_death, self_caused)
+```
+
+## Plotting
+First let's do a simple line plot of time vs amount, with different colours before and after 1994
+```{r}
+clean_dat %>% 
+	group_by(year_of_death) %>% 
+	count() %>% 
+	ungroup() %>% 
+	mutate(cumulative_amount = cumsum(n)) %>% 
+	ggplot(aes(x=year_of_death, y=cumulative_amount)) + 
+	geom_vline(xintercept=1994, linetype="dashed", colour="red") + 
+	geom_line() + 
+	theme_minimal() + 
+	labs(title = "Number of Club 27 members over time", subtitle = "Red line denotes death of Kurt Cobain", y = "Total Club 27 Members", x = "Year")
+```
+From this visualization it doesn't seem like there was any shift in amount of musicians dying after the term club 27 was coined. However, it might still be interesting to facet the plot by whether it was accidental or not. 
+
+```{r}
+clean_dat %>% 
+	group_by(year_of_death, self_caused) %>% 
+	count() %>% 
+	ungroup() %>% 
+	mutate(cumulative_deaths = cumsum(n), 
+				 self_caused = if_else(self_caused, "Self Caused", "Not Self Caused")) %>% 
+	ggplot(aes(x = year_of_death, y=cumulative_deaths)) + 
+	geom_line() + 
+	geom_vline(xintercept = 1994, linetype="dashed", colour="red") + 
+	facet_wrap(~self_caused) + 
+	theme_minimal() + 
+	labs(title = "Number of Club 27 members over time", subtitle = "Red line denotes death of Kurt Cobain", y = "Total Club 27 Members", x = "Year")
+```
+
+Splitting it up into cause doesn't seem to change the pattern. From this analysis it (luckily) seems that no one is actively trying to join club 27. 
